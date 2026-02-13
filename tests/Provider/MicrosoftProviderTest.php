@@ -31,11 +31,24 @@ class MicrosoftProviderTest extends TestCase
         ]);
     }
 
+    public function testCanPassTenantAsOption(): void
+    {
+        $provider = new MicrosoftProvider([
+            'clientId' => 'mock_client_id',
+            'clientSecret' => 'mock_client_secret',
+            'redirectUri' => 'https://example.com/callback',
+            'tenant' => 'mock_tenant',
+        ]);
+
+        $url = $provider->getAuthorizationUrl();
+        $this->assertStringContainsString('mock_tenant', $url);
+    }
+
     #[TestWith([MicrosoftProvider::TENANT_ORGANIZATIONS])]
     #[TestWith([MicrosoftProvider::TENANT_COMMON])]
     #[TestWith([MicrosoftProvider::TENANT_CONSUMERS])]
     #[TestWith(['dummy-tenant-id'])]
-    public function testAuthorizationUrl(string $tenant): void
+    public function testAuthorizationUrlWithTenant(string $tenant): void
     {
         $url = $this->provider->withTenant($tenant)->getAuthorizationUrl();
         $uri = parse_url($url);
@@ -201,9 +214,7 @@ class MicrosoftProviderTest extends TestCase
             'sub' => 'sub-67890',
             'preferred_username' => 'idtoken@example.com',
             'name' => 'ID Token User',
-            'given_name' => 'ID Token',
-            'family_name' => 'User',
-            'email' => 'idtoken@example.com',
+            'email' => 'foo@bar.com',
             'tid' => 'tenant-456',
             'locale' => 'de-DE',
         ];
@@ -236,10 +247,10 @@ class MicrosoftProviderTest extends TestCase
         $token = $provider->getAccessToken('authorization_code', ['code' => 'mock_code']);
         $decodedClaims = $provider->getIdTokenClaims($token);
 
-        $this->assertSame($claims, $decodedClaims);
-        $this->assertSame('67890', $decodedClaims['oid']);
-        $this->assertSame('idtoken@example.com', $decodedClaims['email']);
-        $this->assertSame('tenant-456', $decodedClaims['tid']);
+        $this->assertSame($claims, $decodedClaims->fullPayload);
+        $this->assertSame('idtoken@example.com', $decodedClaims->preferredUsername);
+        $this->assertSame('tenant-456', $decodedClaims->tenantId);
+        $this->assertSame('foo@bar.com', $decodedClaims->email);
     }
 
     public function testGetIdTokenClaimsThrowsExceptionWhenMissing(): void
