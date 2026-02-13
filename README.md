@@ -30,9 +30,9 @@ composer require untt/oauth2-microsoft
 Default tenant is `common` which will work for both personal and work accounts.
 
 ```php
-use Unt\OAuth2\Client\Provider\Microsoft;
+use Unt\OAuth2\Client\Provider\MicrosoftProvider;
 
-$provider = new Microsoft([
+$provider = new MicrosoftProvider([
     'clientId'     => '{microsoft-client-id}',
     'clientSecret' => '{microsoft-client-secret}',
     'redirectUri'  => 'https://example.com/callback',
@@ -81,9 +81,9 @@ try {
 #### Organizations Only (Work/School Accounts)
 
 ```php
-use Unt\OAuth2\Client\Provider\Microsoft;
+use Unt\OAuth2\Client\Provider\MicrosoftProvider;
 
-$provider = new Microsoft([
+$provider = new MicrosoftProvider([
     'clientId'     => '{microsoft-client-id}',
     'clientSecret' => '{microsoft-client-secret}',
     'redirectUri'  => 'https://example.com/callback',
@@ -94,7 +94,7 @@ $provider = new Microsoft([
 #### Specific Tenant
 
 ```php
-$provider = new Microsoft([
+$provider = new MicrosoftProvider([
     'clientId'     => '{microsoft-client-id}',
     'clientSecret' => '{microsoft-client-secret}',
     'redirectUri'  => 'https://example.com/callback',
@@ -104,7 +104,7 @@ $provider = new Microsoft([
 
 ### Accessing ID Token Claims
 
-If you need access to the OpenID Connect ID token claims (e.g., tenant ID, authentication metadata), use the helper method:
+If you need access to the OpenID Connect ID token claims (e.g., tenant ID, authentication metadata), you can add them to the scopes.
 
 ```php
 // Request OpenID Connect scopes when getting authorization URL
@@ -124,11 +124,15 @@ $provider = (MicrosoftProvider([])->requireOpenIdScopes();
 $token = $provider->getAccessToken('authorization_code', ['code' => $_GET['code']]);
 
 // Decode ID token claims
-$claims = $provider->getIdTokenClaims($token);
+$idToken = $provider->getIdTokenClaims($token);
 
-echo 'Tenant ID: ' . $claims['tid'];
-echo 'Object ID: ' . $claims['oid'];
-echo 'Authentication method: ' . $claims['amr'][0];
+echo 'Tenant ID: ' . $idToken->tenantId;
+echo 'Name: ' . $idToken->name;
+echo 'Username: ' . $idToken->preferredUsername;
+echo 'Email: ' . $idToken->email;
+
+// full token payload: $idToken->fullPayload
+
 ```
 
 ### Additional Scopes

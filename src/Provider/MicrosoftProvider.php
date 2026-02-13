@@ -10,6 +10,7 @@ use League\OAuth2\Client\Token\AccessToken;
 use League\OAuth2\Client\Tool\BearerAuthorizationTrait;
 use Psr\Http\Message\ResponseInterface;
 use RuntimeException;
+use Unt\OAuth2\Client\Token\IdToken;
 
 /**
  * Microsoft OAuth2 Provider.
@@ -44,6 +45,21 @@ final class MicrosoftProvider extends AbstractProvider
 
     /** @var string[] */
     private array $defaultScopes = [];
+
+    /**
+     * @param array<string, mixed> $options Use 'tenant' to use for all requests - see parent for all options
+     * @param array<string, mixed> $collaborators See parent
+     */
+    public function __construct(array $options = [], array $collaborators = [])
+    {
+        if (isset($options['tenant'])) {
+            $this->tenant = $options['tenant'];
+            unset($options['tenant']);
+        }
+
+        parent::__construct($options, $collaborators);
+    }
+
 
     public function withTenant(string $tenant): self
     {
@@ -80,11 +96,9 @@ final class MicrosoftProvider extends AbstractProvider
      * Extract and decode the ID token payload from an access token.
      * The ID token must be present in the token response (requires 'openid' scope).
      *
-     * @param AccessToken $token The access token containing the ID token
-     * @return array<string, mixed> Decoded JWT claims from the ID token
      * @throws RuntimeException If ID token is missing or cannot be decoded
      */
-    public function getIdTokenClaims(AccessToken $token): array
+    public function getIdTokenClaims(AccessToken $token): IdToken
     {
         $values = $token->getValues();
         $idToken = $values['id_token'] ?? null;
@@ -109,13 +123,7 @@ final class MicrosoftProvider extends AbstractProvider
             throw new RuntimeException('Failed to decode JWT payload.');
         }
 
-        $claims = json_decode($payload, true);
-
-        if (!is_array($claims)) {
-            throw new RuntimeException('Failed to parse JWT claims.');
-        }
-
-        return $claims;
+        return IdToken::fromPayload($payload);
     }
 
     /**
