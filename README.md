@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/tunterreitmeier/oauth2-microsoft/workflows/CI/badge.svg)](https://github.com/tunterreitmeier/oauth2-microsoft/actions)
 [![Latest Stable Version](https://img.shields.io/packagist/v/untt/oauth2-microsoft.svg)](https://packagist.org/packages/untt/oauth2-microsoft)
-[![License](https://img.shields.io/packagist/l/untt/oauth2-microsoft.svg)](LICENSE)
+[![License](https://img.shields.io/github/license/tunterreitmeier/oauth2-microsoft)](LICENSE)
 
 A production-ready Microsoft OAuth2 provider package for [thephpleague/oauth2-client](https://github.com/thephpleague/oauth2-client), enabling authentication via Microsoft Entra (Azure AD) with support for both personal and organizational accounts.
 
