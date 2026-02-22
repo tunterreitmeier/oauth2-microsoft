@@ -135,6 +135,9 @@ echo 'Email: ' . $idToken->email;
 
 ```
 
+Please note that the OpenID Connect JWT is not actively verified. Just as with the Access Token, you should
+verify the `state` to detect forged requests.
+
 ### Additional Scopes
 
 Request additional Microsoft Graph API permissions:
