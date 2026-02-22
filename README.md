@@ -148,6 +148,10 @@ $authorizationUrl = $provider->getAuthorizationUrl([
 ]);
 ```
 
+Please note that Microsoft usually does not allow scopes across different 'product spaces'.
+So if you require for example `User.Read` from `https://graph.microsoft.com`, you will not be able to request `SMTP.Send`
+from `https://outlook.office.com` in the same token. You will have to request these individually, using a refresh token.
+
 ### Refresh Tokens
 
 To get a refresh token, include the `offline_access` scope:
