@@ -161,10 +161,18 @@ $authorizationUrl = $provider->getAuthorizationUrl([
     'scope' => ['openid', 'User.Read', 'offline_access']
 ]);
 
+// Store the refresh token
+$token->getRefreshToken();
+
 // Later, refresh the token
-$newToken = $provider->getAccessToken('refresh_token', [
-    'refresh_token' => $token->getRefreshToken()
-]);
+if ($token->hasExpired()) {
+    $newToken = $provider->getAccessToken('refresh_token', [
+        'refresh_token' => $token->getRefreshToken()
+    ]);
+    
+    // store the new refresh token, in case it also has expired
+} 
+
 ```
 
 ## Resource Owner Methods
