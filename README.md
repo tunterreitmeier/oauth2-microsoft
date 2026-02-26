@@ -87,7 +87,7 @@ $provider = new MicrosoftProvider([
     'clientId'     => '{microsoft-client-id}',
     'clientSecret' => '{microsoft-client-secret}',
     'redirectUri'  => 'https://example.com/callback',
-    'tenant'       => Microsoft::TENANT_ORGANIZATIONS,
+    'tenant'       => MicrosoftProvider::TENANT_ORGANIZATIONS,
 ]);
 ```
 
@@ -118,7 +118,7 @@ $authorizationUrl = $provider->getAuthorizationUrl([
 ]);
 
 // or use helper method
-$provider = (MicrosoftProvider([])->requireOpenIdScopes();
+$provider = (new MicrosoftProvider())->requireOpenIdScopes();
 
 // After getting the access token
 $token = $provider->getAccessToken('authorization_code', ['code' => $_GET['code']]);
