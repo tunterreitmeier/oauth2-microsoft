@@ -51,7 +51,7 @@ final class MicrosoftProvider extends AbstractProvider
     /** @var string[] */
     private array $defaultScopes = [];
 
-    /** @method MicrosoftResourceOwner getResourceOwner() */
+    /** @method MicrosoftResourceOwner getResourceOwner(AccessTokenInterface $accessToken) */
 
     /**
      * @param array{
