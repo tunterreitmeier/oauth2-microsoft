@@ -83,7 +83,7 @@ final readonly class MicrosoftResourceOwner implements ResourceOwnerInterface
      *     mobilePhone: ?string,
      *     officeLocation: ?string,
      *     preferredLanguage: string,
-     *     surName: ?string,
+     *     surname: ?string,
      *     userPrincipalName: string,
      *     id: string
      * }
