@@ -10,6 +10,7 @@ use League\OAuth2\Client\OptionProvider\OptionProviderInterface;
 use League\OAuth2\Client\Provider\AbstractProvider;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use League\OAuth2\Client\Token\AccessToken;
+use League\OAuth2\Client\Token\AccessTokenInterface;
 use League\OAuth2\Client\Tool\BearerAuthorizationTrait;
 use League\OAuth2\Client\Tool\RequestFactory;
 use Psr\Http\Message\ResponseInterface;
@@ -119,7 +120,7 @@ final class MicrosoftProvider extends AbstractProvider
      *
      * @throws RuntimeException If ID token is missing or cannot be decoded
      */
-    public function getIdTokenClaims(AccessToken $token): IdToken
+    public function getIdTokenClaims(AccessTokenInterface $token): IdToken
     {
         $values = $token->getValues();
         $idToken = $values['id_token'] ?? null;
