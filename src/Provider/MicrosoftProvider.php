@@ -4,10 +4,14 @@ declare(strict_types=1);
 
 namespace Unt\OAuth2\Client\Provider;
 
+use GuzzleHttp\ClientInterface;
+use League\OAuth2\Client\Grant\GrantFactory;
+use League\OAuth2\Client\OptionProvider\OptionProviderInterface;
 use League\OAuth2\Client\Provider\AbstractProvider;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use League\OAuth2\Client\Token\AccessToken;
 use League\OAuth2\Client\Tool\BearerAuthorizationTrait;
+use League\OAuth2\Client\Tool\RequestFactory;
 use Psr\Http\Message\ResponseInterface;
 use RuntimeException;
 use Unt\OAuth2\Client\Token\IdToken;
@@ -46,9 +50,26 @@ final class MicrosoftProvider extends AbstractProvider
     /** @var string[] */
     private array $defaultScopes = [];
 
+    /** @method MicrosoftResourceOwner getResourceOwner() */
+
     /**
-     * @param array<string, mixed> $options Use 'tenant' to use for all requests - see parent for all options
-     * @param array<string, mixed> $collaborators See parent
+     * @param array{
+     *     clientId: string,
+     *     clientSecret: string,
+     *     redirectUri: string,
+     *     tenant?: 'common'|'organizations'|'consumers'|string,
+     *     state?: string,
+     *     pkceCode?: ?string,
+     *     timeout?: float,
+     *     proxy?: string
+     * } $options Use 'tenant' to use for all requests - see parent for all options
+     * @param array{
+     *     grantFactory?: GrantFactory,
+     *     requestFactory?: RequestFactory,
+     *     httpClient?: ClientInterface,
+     *     optionProvider?: OptionProviderInterface
+     * } $collaborators See parent
+     * @phpstan-ignore parameter.defaultValue
      */
     public function __construct(array $options = [], array $collaborators = [])
     {

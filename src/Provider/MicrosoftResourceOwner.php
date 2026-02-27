@@ -74,9 +74,23 @@ final readonly class MicrosoftResourceOwner implements ResourceOwnerInterface
         return $this->response['businessPhones'] ?? [];
     }
 
-    /** @return array<string, mixed> */
+    /** @return array{
+     *     businessPhones: string[],
+     *     displayName: string,
+     *     givenName: ?string,
+     *     jobTitle: ?string,
+     *     mail: ?string,
+     *     mobilePhone: ?string,
+     *     officeLocation: ?string,
+     *     preferredLanguage: string,
+     *     surName: ?string,
+     *     userPrincipalName: string,
+     *     id: string
+     * }
+     */
     public function toArray(): array
     {
+        // @phpstan-ignore return.type
         return $this->response;
     }
 }
