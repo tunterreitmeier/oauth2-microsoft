@@ -152,6 +152,10 @@ Please note that Microsoft usually does not allow scopes across different 'produ
 So if you require for example `User.Read` from `https://graph.microsoft.com`, you will not be able to request `SMTP.Send`
 from `https://outlook.office.com` in the same token. You will have to request these individually, using a refresh token.
 
+In Microsoft identity platform authorization, token, or consent requests,
+omitting the resource identifier in the scope parameter defaults to Microsoft Graph.
+For example, `User.Read` is treated as `https://graph.microsoft.com/User.Read`.
+
 ### Refresh Tokens
 
 To get a refresh token, include the `offline_access` scope:
