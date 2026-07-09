@@ -11,6 +11,7 @@ use GuzzleHttp\Psr7\Response;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use League\OAuth2\Client\Token\AccessToken;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
@@ -101,17 +102,13 @@ class MicrosoftProviderTest extends TestCase
         $this->assertSame('offline_access', $query['scope']);
     }
 
-    public function testErrorResponse(): void
-    {
-        $jsonBody = json_encode([
-            'error' => 'invalid_request',
-            'error_description' => 'The request is missing a required parameter',
-        ]);
-        $this->assertIsString($jsonBody);
 
-        $mock = new MockHandler([
-            new Response(400, [], $jsonBody),
-        ]);
+    #[DataProvider('errorProvider')]
+    public function testErrorResponse(array $error, string $expectedMessage): void
+    {
+        $jsonBody = json_encode($error, JSON_THROW_ON_ERROR);
+
+        $mock = new MockHandler([new Response(400, [], $jsonBody)]);
 
         $provider = new MicrosoftProvider(
             [
@@ -125,7 +122,7 @@ class MicrosoftProviderTest extends TestCase
         );
 
         $this->expectException(IdentityProviderException::class);
-        $this->expectExceptionMessage('The request is missing a required parameter');
+        $this->expectExceptionMessage($expectedMessage);
 
         $provider->getAccessToken('authorization_code', ['code' => 'mock_code']);
     }
@@ -314,5 +311,17 @@ class MicrosoftProviderTest extends TestCase
         $this->expectExceptionMessage('Malformed JWT ID token');
 
         $provider->getIdTokenClaims($token);
+    }
+
+    public static function errorProvider(): \Generator
+    {
+        yield 'with description' => [
+            ['error' => 'invalid_request', 'error_description' => 'The request is missing a required parameter',],
+            'The request is missing a required parameter',
+        ];
+        yield 'with message' => [
+            ['error' => ['code' => 'foo', 'message' => 'Insufficient privileges to complete the operation.']],
+            'Insufficient privileges to complete the operation.',
+        ];
     }
 }

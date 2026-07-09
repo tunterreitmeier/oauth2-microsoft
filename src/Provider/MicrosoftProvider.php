@@ -17,6 +17,9 @@ use Psr\Http\Message\ResponseInterface;
 use RuntimeException;
 use Unt\OAuth2\Client\Token\IdToken;
 
+use function is_array;
+use function is_string;
+
 /**
  * Microsoft OAuth2 Provider.
  *
@@ -197,11 +200,8 @@ final class MicrosoftProvider extends AbstractProvider
     protected function checkResponse(ResponseInterface $response, $data): void
     {
         if (!empty($data['error'])) {
-            $error = $data['error'];
-            $errorDescription = $data['error_description'] ?? $error;
-
             throw new IdentityProviderException(
-                $errorDescription,
+                $this->parseErrorMessage($data),
                 $response->getStatusCode(),
                 $data,
             );
@@ -215,5 +215,22 @@ final class MicrosoftProvider extends AbstractProvider
     protected function createResourceOwner(array $response, AccessToken $token): MicrosoftResourceOwner
     {
         return new MicrosoftResourceOwner($response);
+    }
+
+    /** @param array<string, mixed>|string $data */
+    private function parseErrorMessage(array|string $data): string
+    {
+        $error = $data['error'] ?? 'Unknown error';
+        if (is_array($error) && isset($error['message']) && is_string($error['message'])) {
+            return $error['message'];
+        }
+        if (isset($data['error_description']) && is_string($data['error_description'])) {
+            return $data['error_description'];
+        }
+        if (is_string($error)) {
+            return $error;
+        }
+
+        return 'Unknown error - please check payload for more information.';
     }
 }
