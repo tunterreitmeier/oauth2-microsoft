@@ -7,9 +7,11 @@ namespace Unt\OAuth2\Client\Test\Provider;
 use GuzzleHttp\Client;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
+use GuzzleHttp\Psr7\HttpFactory;
 use GuzzleHttp\Psr7\Response;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use League\OAuth2\Client\Token\AccessToken;
+use League\OAuth2\Client\Tool\RequestFactory;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestWith;
@@ -25,21 +27,12 @@ class MicrosoftProviderTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->provider = new MicrosoftProvider([
-            'clientId' => 'mock_client_id',
-            'clientSecret' => 'mock_client_secret',
-            'redirectUri' => 'https://example.com/callback',
-        ]);
+        $this->provider = $this->provider();
     }
 
     public function testCanPassTenantAsOption(): void
     {
-        $provider = new MicrosoftProvider([
-            'clientId' => 'mock_client_id',
-            'clientSecret' => 'mock_client_secret',
-            'redirectUri' => 'https://example.com/callback',
-            'tenant' => 'mock_tenant',
-        ]);
+        $provider = $this->provider(['tenant' => 'mock_tenant']);
 
         $url = $provider->getAuthorizationUrl();
         $this->assertStringContainsString('mock_tenant', $url);
@@ -110,16 +103,9 @@ class MicrosoftProviderTest extends TestCase
 
         $mock = new MockHandler([new Response(400, [], $jsonBody)]);
 
-        $provider = new MicrosoftProvider(
-            [
-                'clientId' => 'mock_client_id',
-                'clientSecret' => 'mock_client_secret',
-                'redirectUri' => 'https://example.com/callback',
-            ],
-            [
-                'httpClient' => new Client(['handler' => HandlerStack::create($mock)]),
-            ],
-        );
+        $provider = $this->provider(collaborators: [
+            'httpClient' => new Client(['handler' => HandlerStack::create($mock)]),
+        ]);
 
         $this->expectException(IdentityProviderException::class);
         $this->expectExceptionMessage($expectedMessage);
@@ -141,16 +127,9 @@ class MicrosoftProviderTest extends TestCase
             new Response(200, [], $jsonBody),
         ]);
 
-        $provider = new MicrosoftProvider(
-            [
-                'clientId' => 'mock_client_id',
-                'clientSecret' => 'mock_client_secret',
-                'redirectUri' => 'https://example.com/callback',
-            ],
-            [
-                'httpClient' => new Client(['handler' => HandlerStack::create($mock)]),
-            ],
-        );
+        $provider = $this->provider(collaborators: [
+            'httpClient' => new Client(['handler' => HandlerStack::create($mock)]),
+        ]);
 
         $token = $provider->getAccessToken('authorization_code', ['code' => 'mock_code']);
 
@@ -183,16 +162,9 @@ class MicrosoftProviderTest extends TestCase
             new Response(200, [], $userJson),
         ]);
 
-        $provider = new MicrosoftProvider(
-            [
-                'clientId' => 'mock_client_id',
-                'clientSecret' => 'mock_client_secret',
-                'redirectUri' => 'https://example.com/callback',
-            ],
-            [
-                'httpClient' => new Client(['handler' => HandlerStack::create($mock)]),
-            ],
-        );
+        $provider = $this->provider(collaborators: [
+            'httpClient' => new Client(['handler' => HandlerStack::create($mock)]),
+        ]);
 
         $token = $provider->getAccessToken('authorization_code', ['code' => 'mock_code']);
         $this->assertInstanceOf(AccessToken::class, $token);
@@ -230,16 +202,9 @@ class MicrosoftProviderTest extends TestCase
             new Response(200, [], $responsePayload),
         ]);
 
-        $provider = new MicrosoftProvider(
-            [
-                'clientId' => 'mock_client_id',
-                'clientSecret' => 'mock_client_secret',
-                'redirectUri' => 'https://example.com/callback',
-            ],
-            [
-                'httpClient' => new Client(['handler' => HandlerStack::create($mock)]),
-            ],
-        );
+        $provider = $this->provider(collaborators: [
+            'httpClient' => new Client(['handler' => HandlerStack::create($mock)]),
+        ]);
 
         $token = $provider->getAccessToken('authorization_code', ['code' => 'mock_code']);
         $decodedClaims = $provider->getIdTokenClaims($token);
@@ -262,16 +227,9 @@ class MicrosoftProviderTest extends TestCase
             new Response(200, [], $responsePayload),
         ]);
 
-        $provider = new MicrosoftProvider(
-            [
-                'clientId' => 'mock_client_id',
-                'clientSecret' => 'mock_client_secret',
-                'redirectUri' => 'https://example.com/callback',
-            ],
-            [
-                'httpClient' => new Client(['handler' => HandlerStack::create($mock)]),
-            ],
-        );
+        $provider = $this->provider(collaborators: [
+            'httpClient' => new Client(['handler' => HandlerStack::create($mock)]),
+        ]);
 
         $token = $provider->getAccessToken('authorization_code', ['code' => 'mock_code']);
 
@@ -294,16 +252,9 @@ class MicrosoftProviderTest extends TestCase
             new Response(200, [], $responsePayload),
         ]);
 
-        $provider = new MicrosoftProvider(
-            [
-                'clientId' => 'mock_client_id',
-                'clientSecret' => 'mock_client_secret',
-                'redirectUri' => 'https://example.com/callback',
-            ],
-            [
-                'httpClient' => new Client(['handler' => HandlerStack::create($mock)]),
-            ],
-        );
+        $provider = $this->provider(collaborators: [
+            'httpClient' => new Client(['handler' => HandlerStack::create($mock)]),
+        ]);
 
         $token = $provider->getAccessToken('authorization_code', ['code' => 'mock_code']);
 
@@ -323,5 +274,24 @@ class MicrosoftProviderTest extends TestCase
             ['error' => ['code' => 'foo', 'message' => 'Insufficient privileges to complete the operation.']],
             'Insufficient privileges to complete the operation.',
         ];
+    }
+
+    private function provider(array $options = [], array $collaborators = []): MicrosoftProvider
+    {
+        // RequestFactory is replaced by Psr Interface in client v3
+        $factory = \class_exists(RequestFactory::class) ? new RequestFactory() : new HttpFactory();
+
+        return new MicrosoftProvider(
+            \array_merge([
+                'clientId' => 'mock_client_id',
+                'clientSecret' => 'mock_client_secret',
+                'redirectUri' => 'https://example.com/callback',
+            ], $options),
+            \array_merge([
+                'requestFactory' => $factory,
+                'streamFactory' => $factory,
+                'httpClient' => $this->createStub(Client::class),
+            ], $collaborators),
+        );
     }
 }

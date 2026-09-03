@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Unt\OAuth2\Client\Provider;
 
-use GuzzleHttp\ClientInterface;
 use League\OAuth2\Client\Grant\GrantFactory;
 use League\OAuth2\Client\OptionProvider\OptionProviderInterface;
 use League\OAuth2\Client\Provider\AbstractProvider;
@@ -12,8 +11,10 @@ use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use League\OAuth2\Client\Token\AccessToken;
 use League\OAuth2\Client\Token\AccessTokenInterface;
 use League\OAuth2\Client\Tool\BearerAuthorizationTrait;
-use League\OAuth2\Client\Tool\RequestFactory;
+use Psr\Http\Client\ClientInterface;
+use Psr\Http\Message\RequestFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\StreamFactoryInterface;
 use RuntimeException;
 use Unt\OAuth2\Client\Token\IdToken;
 
@@ -69,7 +70,8 @@ final class MicrosoftProvider extends AbstractProvider
      * } $options Use 'tenant' to use for all requests - see parent for all options
      * @param array{
      *     grantFactory?: GrantFactory,
-     *     requestFactory?: RequestFactory,
+     *     requestFactory?: RequestFactoryInterface,
+     *     streamFactory?: StreamFactoryInterface,
      *     httpClient?: ClientInterface,
      *     optionProvider?: OptionProviderInterface
      * } $collaborators See parent
