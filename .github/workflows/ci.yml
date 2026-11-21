@@ -54,7 +54,7 @@ jobs:
       - name: Check code style
         run: composer check:style
 
-      - name: Run PHPStan
+      - name: Run static checks
         run: composer check:static
 
       - name: Run tests
