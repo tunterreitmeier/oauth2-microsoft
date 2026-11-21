@@ -14,11 +14,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php: ['8.2', '8.3', '8.4', '8.5']
+        php: ['8.2', '8.3', '8.4']
         oauth2-client: ['2.6.*', '2.7.*', '2.8.*', '^2.6']
-        exclude:
+        include:
           - php: '8.5'
-            oauth2-client: '2.8.*'
+            oauth2-client: '^2.6'
+          - php: '8.6'
+            oauth2-client: '^2.6'
 
     steps:
       - name: Checkout code
