@@ -13,6 +13,7 @@ use League\OAuth2\Client\Token\AccessToken;
 use League\OAuth2\Client\Token\AccessTokenInterface;
 use League\OAuth2\Client\Tool\BearerAuthorizationTrait;
 use League\OAuth2\Client\Tool\RequestFactory;
+use Override;
 use Psr\Http\Message\ResponseInterface;
 use RuntimeException;
 use Unt\OAuth2\Client\Token\IdToken;
@@ -26,6 +27,7 @@ use function is_string;
  * Supports authentication via Microsoft Entra (Azure AD) for personal,
  * organizational, or both account types. Always fetches user data from
  * Microsoft Graph API.
+ * @psalm-suppress PropertyNotSetInConstructor
  */
 final class MicrosoftProvider extends AbstractProvider
 {
@@ -57,6 +59,7 @@ final class MicrosoftProvider extends AbstractProvider
     /** @method MicrosoftResourceOwner getResourceOwner(AccessTokenInterface $accessToken) */
 
     /**
+     * @psalm-suppress InvalidParamDefault
      * @param array{
      *     clientId: string,
      *     clientSecret: string,
@@ -133,6 +136,7 @@ final class MicrosoftProvider extends AbstractProvider
                 'ID token not found in token response. Ensure "openid" scope is requested.',
             );
         }
+        assert(is_string($idToken));
 
         // Parse JWT (format: header.payload.signature)
         $parts = explode('.', $idToken);
@@ -151,52 +155,45 @@ final class MicrosoftProvider extends AbstractProvider
         return IdToken::fromPayload($payload);
     }
 
-    /**
-     * @inheritDoc
-     */
+    #[Override]
     public function getBaseAuthorizationUrl(): string
     {
         return sprintf('https://login.microsoftonline.com/%s/oauth2/v2.0/authorize', $this->tenant);
     }
 
     /**
-     * @inheritDoc
      * @param array<string, mixed> $params
      */
+    #[Override]
     public function getBaseAccessTokenUrl(array $params): string
     {
         return sprintf('https://login.microsoftonline.com/%s/oauth2/v2.0/token', $this->tenant);
     }
 
-    /**
-     * @inheritDoc
-     */
+    #[Override]
     public function getResourceOwnerDetailsUrl(AccessToken $token): string
     {
         return 'https://graph.microsoft.com/v1.0/me';
     }
 
-    /**
-     * @inheritDoc
-     * @return array<string>
-     */
+    /** @return array<string> */
+    #[Override]
     protected function getDefaultScopes(): array
     {
         return $this->defaultScopes;
     }
 
-    /**
-     * @inheritDoc
-     */
+    #[Override]
     protected function getScopeSeparator(): string
     {
         return ' ';
     }
 
     /**
-     * @inheritDoc
      * @param array<string, mixed>|string $data
+     * @throws IdentityProviderException
      */
+    #[Override]
     protected function checkResponse(ResponseInterface $response, $data): void
     {
         if (!empty($data['error'])) {
@@ -208,10 +205,8 @@ final class MicrosoftProvider extends AbstractProvider
         }
     }
 
-    /**
-     * @inheritDoc
-     * @param array<string, mixed> $response
-     */
+    /** @param array<string, mixed> $response */
+    #[Override]
     protected function createResourceOwner(array $response, AccessToken $token): MicrosoftResourceOwner
     {
         return new MicrosoftResourceOwner($response);

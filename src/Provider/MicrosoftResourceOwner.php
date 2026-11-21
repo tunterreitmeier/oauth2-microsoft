@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Unt\OAuth2\Client\Provider;
 
 use League\OAuth2\Client\Provider\ResourceOwnerInterface;
+use Override;
 
 /**
  * Represents a Microsoft resource owner (user) from Microsoft Graph API.
@@ -18,6 +19,7 @@ final readonly class MicrosoftResourceOwner implements ResourceOwnerInterface
      */
     public function __construct(private array $response) {}
 
+    #[Override]
     public function getId(): string
     {
         return $this->response['id'];
@@ -88,9 +90,13 @@ final readonly class MicrosoftResourceOwner implements ResourceOwnerInterface
      *     id: string
      * }
      */
+    #[Override]
     public function toArray(): array
     {
-        // @phpstan-ignore return.type
+        /**
+         * @psalm-suppress LessSpecificReturnStatement
+         * @phpstan-ignore return.type
+         */
         return $this->response;
     }
 }
