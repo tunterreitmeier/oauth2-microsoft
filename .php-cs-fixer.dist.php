@@ -6,6 +6,7 @@ $finder = PhpCsFixer\Finder::create()
     ->in(['src', 'tests']);
 
 return (new PhpCsFixer\Config())
+    ->setUnsupportedPhpVersionAllowed(true)
     ->setRules([
         '@PER-CS' => true,
     ])
